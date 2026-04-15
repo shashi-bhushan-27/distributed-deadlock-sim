@@ -367,11 +367,10 @@ class DistributedDeadlockSim:
             if self.rng.random() > self.cfg.request_prob:
                 continue  # Skip this round
 
-            # Pick two distinct resources
+            # Pick two distinct resources; skip round if only one resource exists
             if len(all_keys) < 2:
-                keys = all_keys * 2
-            else:
-                keys = self.rng.sample(all_keys, 2)
+                continue
+            keys = self.rng.sample(all_keys, 2)
 
             res1 = self.resources[keys[0]]
             res2 = self.resources[keys[1]]

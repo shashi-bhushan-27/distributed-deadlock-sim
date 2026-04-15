@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
 import streamlit as st
+from typing import Set, Tuple
 
 from simulation import SimConfig, SimResult, run_simulation
 
@@ -162,7 +163,7 @@ else:
 st.subheader("🗺️ Per-Site Wait-For Graphs (final state)")
 
 # Collect all cycles for highlighting
-cycle_edges: set[tuple[int, int]] = set()
+cycle_edges: Set[Tuple[int, int]] = set()
 for d in result.deadlocks:
     nodes = d["cycle"]
     for i in range(len(nodes) - 1):
