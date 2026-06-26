@@ -38,6 +38,8 @@ distributed-deadlock-sim/
 ├── app.py              # Streamlit UI
 ├── simulation.py       # SimPy simulation core + CMH algorithm
 ├── requirements.txt    # Python dependencies
+├── Dockerfile          # Production container image
+├── .streamlit/config.toml # Streamlit runtime defaults
 ├── README.md           # This file
 └── REPORT.md           # Detailed technical report
 ```
@@ -60,7 +62,44 @@ streamlit run app.py
 
 Open the URL shown in the terminal (usually `http://localhost:8501`).
 
-### 3. Run a simulation programmatically
+---
+
+## Production Deployment Strategy
+
+This project is best deployed as a containerized Streamlit app behind a managed platform or reverse proxy. The simulation is stateless between runs, so horizontal scaling is simple: each browser session can be served by any replica without shared persistence.
+
+### Recommended path
+
+1. Build a Docker image from the included `Dockerfile`.
+2. Deploy it to a platform that supports HTTP containers such as Render, Fly.io, Railway, Azure Container Apps, or ECS/Fargate.
+3. Put the container behind TLS termination and a reverse proxy or platform-managed ingress.
+4. Set resource limits conservatively because each run renders matplotlib graphs in-process.
+
+### Runtime settings
+
+Use the included `.streamlit/config.toml` for consistent production defaults:
+
+* headless server mode
+* explicit host/port binding
+* lightweight Streamlit theme
+* XSRF protection enabled
+
+### Example build and run
+
+```bash
+docker build -t distributed-deadlock-sim .
+docker run --rm -p 8501:8501 distributed-deadlock-sim
+```
+
+### Suggested deployment posture
+
+* Single app replica is enough for demos and classroom use.
+* Increase CPU and memory if users will run longer simulations or higher process counts.
+* For team/internal production, place the app behind SSO or a gateway that enforces authentication and rate limits.
+
+---
+
+### Run a simulation programmatically
 
 ```python
 from simulation import SimConfig, run_simulation
